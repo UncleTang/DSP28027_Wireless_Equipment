@@ -1,0 +1,5 @@
+1.cmd文件 28027_RAM_lnk改  “PRAML0     : origin = 0x008000, length = 0x000900”  为   “PRAML0     : origin = 0x008000, length = 0x001000”。
+2.工程属性仿真器改为Texas Instruments XDS100v2 USB Debug。
+3.在User_Variables.h中声明SCI用到的全局变量（需加extern）；在User_Functions.h文件中声明SCI用到的函数（需加extern)；在User_Initialization.c中给相关的SCI全局变量赋值；
+4.新建User_SCI.c文件，定义SCI用到的函数。
+5.在main函数中植入SCI相关代码
