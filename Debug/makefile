@@ -157,33 +157,33 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXE_OUTPUTS += \
-WPT_receiver_dc_dc.out \
+WPT_receiver_dc_dc_adc_pwm_git.out \
 
 EXE_OUTPUTS__QUOTED += \
-"WPT_receiver_dc_dc.out" \
+"WPT_receiver_dc_dc_adc_pwm_git.out" \
 
 BIN_OUTPUTS += \
-WPT_receiver_dc_dc.hex \
+WPT_receiver_dc_dc_adc_pwm_git.hex \
 
 BIN_OUTPUTS__QUOTED += \
-"WPT_receiver_dc_dc.hex" \
+"WPT_receiver_dc_dc_adc_pwm_git.hex" \
 
 
 # All Target
-all: WPT_receiver_dc_dc.out
+all: WPT_receiver_dc_dc_adc_pwm_git.out
 
 # Tool invocations
-WPT_receiver_dc_dc.out: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
+WPT_receiver_dc_dc_adc_pwm_git.out: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: C2000 Linker'
-	"D:/ti/ccs910/ccs/tools/compiler/ti-cgt-c2000_18.12.2.LTS/bin/cl2000" -v28 -ml -mt -Ooff --opt_for_speed=0 --advice:performance=all -g --display_error_number --diag_warning=225 --diag_wrap=off -z -m"WPT_receiver_dc_dc.map" --stack_size=0x300 --warn_sections -i"D:/ti/ccs910/ccs/tools/compiler/ti-cgt-c2000_18.12.2.LTS/lib" -i"D:/ti/ccs910/ccs/tools/compiler/ti-cgt-c2000_18.12.2.LTS/include" --reread_libs --display_error_number --diag_wrap=off --xml_link_info="WPT_receiver_dc_dc_linkInfo.xml" --rom_model -o "WPT_receiver_dc_dc.out" $(ORDERED_OBJS)
+	"D:/ti/ccs910/ccs/tools/compiler/ti-cgt-c2000_18.12.2.LTS/bin/cl2000" -v28 -ml -mt -Ooff --opt_for_speed=0 --advice:performance=all -g --display_error_number --diag_warning=225 --diag_wrap=off -z -m"WPT_receiver_dc_dc_adc_pwm_git.map" --stack_size=0x300 --warn_sections -i"D:/ti/ccs910/ccs/tools/compiler/ti-cgt-c2000_18.12.2.LTS/lib" -i"D:/ti/ccs910/ccs/tools/compiler/ti-cgt-c2000_18.12.2.LTS/include" --reread_libs --display_error_number --diag_wrap=off --xml_link_info="WPT_receiver_dc_dc_adc_pwm_git_linkInfo.xml" --rom_model -o "WPT_receiver_dc_dc_adc_pwm_git.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 
-WPT_receiver_dc_dc.hex: $(EXE_OUTPUTS)
+WPT_receiver_dc_dc_adc_pwm_git.hex: $(EXE_OUTPUTS)
 	@echo 'Building files: $(strip $(EXE_OUTPUTS__QUOTED))'
 	@echo 'Invoking: C2000 Hex Utility'
-	"D:/ti/ccs910/ccs/tools/compiler/ti-cgt-c2000_18.12.2.LTS/bin/hex2000"  -o "WPT_receiver_dc_dc.hex" $(EXE_OUTPUTS__QUOTED)
+	"D:/ti/ccs910/ccs/tools/compiler/ti-cgt-c2000_18.12.2.LTS/bin/hex2000"  -o "WPT_receiver_dc_dc_adc_pwm_git.hex" $(EXE_OUTPUTS__QUOTED)
 	@echo 'Finished building: $(strip $(EXE_OUTPUTS__QUOTED))'
 	@echo ' '
 

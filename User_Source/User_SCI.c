@@ -6,7 +6,7 @@
  */
 
 #include "User_all_include.h"
-
+char receive_buffer[16];
 
 /*****************************************************************************串口模块基本设置函数******************************************************/
 void scia_basic_init()
@@ -20,6 +20,10 @@ void scia_basic_init()
     SciaRegs.SCIFFTX.all=0xE040;  //继续使能SCI_FIFO发送和接收，使能SCI_FIFO增强功能，重新恢复发送FIFO的操作，清除FIFO发送中断标志，禁止基于TXFHVL匹配的TX_FIFO中断，TXFFIL配置0级匹配
     SciaRegs.SCIFFRX.all=0x2044;  //清除清除RXFFOVF溢出标志位，重新恢复接收 FIFO 的操作，清除FIFO接收中断标志，禁止基于RXFHVL匹配的RX_FIFO中断，RXFFIL配置4级匹配
     SciaRegs.SCIFFCT.all=0x0;     //关于自动波特率的检测，不需要
+
+    SciaRegs.SCIFFRX.bit.RXFFIL = 1;
+    SciaRegs.SCIFFRX.bit.RXFFINTCLR = 1;
+    SciaRegs.SCIFFRX.bit.RXFFIENA = 1;
 }
 /******************************************************************************************************************************************************/
 
@@ -184,3 +188,94 @@ void scia_send_Char_one_by_one(char *Str)
 	while (SciaRegs.SCIFFTX.bit.TXFFST != 0) {}  //等待所有数据发送完毕再退出函数
 }
 /******************************************************************************************************************************************/
+
+__interrupt void sciaRxFifoIsr()
+{
+    static char i = 3;
+    float temp = 0;
+
+    if(i ==3)
+    {
+        receive_buffer[0] = receive_buffer[1];
+        receive_buffer[1] = receive_buffer[2];
+        receive_buffer[2] = receive_buffer[3];
+    }
+    *(receive_buffer + i) = SciaRegs.SCIRXBUF.all;
+    if(receive_buffer[0] == 0x01 && receive_buffer[1] == 0x02 && receive_buffer[2] == 0x03 && receive_buffer[3] == 0x04)
+    {
+        i++;
+    }
+    if(i == 9)
+    {
+        switch(receive_buffer[4])
+        {
+        case 0x01:
+            temp = ((receive_buffer[5] << 16) + (receive_buffer[6] << 8) + receive_buffer[7]) / 100.0;
+            break;
+        case 0x00:
+            temp = -((receive_buffer[5] << 16) + (receive_buffer[6] << 8) + receive_buffer[7]) / 100.0;
+            break;
+        }
+        switch(receive_buffer[8])
+        {
+        case 0x00:
+        {
+            if(kp_sci != temp)
+                kp_sci = temp;
+        }
+        case 0x01:
+        {
+            if(ki_sci != temp)
+                ki_sci = temp;
+        }
+//        case 0x02:
+//            kp_sci = (float)(temp / 1000.0);
+//        case 0x03:
+//            kp_sci = (float)(temp / 1000.0);
+          i = 3;
+        }
+    }
+    //SciaRegs.SCIFFRX.bit.RXFIFORESET = 0;   //指针复位
+    //SciaRegs.SCIFFRX.bit.RXFIFORESET = 1;
+    SciaRegs.SCIFFRX.bit.RXFFINTCLR = 1;  // Clear SCI interrupt flag
+    PieCtrlRegs.PIEACK.bit.ACK9 = 1;     //PIE应答清零
+}
+
+char SEND_BUF[9] = {0xc0, 0xfb, 0xe1, 0, 0, 0, 0, 0, 0xdd};
+void send_data_to_pc(Uint16 num, char num_type) //接收整数，在PC再处理
+{
+    int i;
+    if(num < 0)
+    {
+        num = 0 - num;
+        SEND_BUF[3] = 0x00;
+    }
+    else
+    {
+        SEND_BUF[3] = 0x01;
+    }
+    switch(num_type)
+    {
+    case 0x01:
+        SEND_BUF[4] = 0x01;
+        break;
+    case 0x02:
+        SEND_BUF[4] = 0x02;
+        break;
+    case 0x03:
+        SEND_BUF[4] = 0x03;
+        break;
+    case 0x04:
+        SEND_BUF[4] = 0x04;
+        break;
+    }
+    SEND_BUF[5] = (char)(num >> 16);
+    SEND_BUF[6] = (char)(num >> 8);
+    SEND_BUF[7] = (char)(num %256);
+
+    for(i = 0; i < 9; i++)
+    {
+        SciaRegs.SCITXBUF = SEND_BUF[i];
+        while (SciaRegs.SCIFFTX.bit.TXFFST != 0) {}
+    }
+}
