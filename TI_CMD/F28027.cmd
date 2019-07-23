@@ -1,15 +1,15 @@
 /*
+// TI File $Revision: /main/7 $
+// Checkin $Date: July 6, 2009   17:25:36 $
 //###########################################################################
 //
-// FILE:    F28027.cmd
+// FILE:	F28027.cmd
 //
-// TITLE:    Linker Command File For F28027 Device
+// TITLE:	Linker Command File For F28027 Device
 //
 //###########################################################################
-// $TI Release: F2802x Support Library v230 $
-// $Release Date: Fri May  8 07:43:05 CDT 2015 $
-// $Copyright: Copyright (C) 2008-2015 Texas Instruments Incorporated -
-//             http://www.ti.com/ ALL RIGHTS RESERVED $
+// $TI Release:  $
+// $Release Date:  $
 //###########################################################################
 */
 
@@ -22,10 +22,10 @@
 // peripheral structures to the proper locations within
 // the memory map.
 //
-// The header linker files are found in <base>\f2802xX_Headers\cmd
+// The header linker files are found in <base>\DSP2802_Headers\cmd
 //
-// For BIOS applications add:      F2802xX_Headers_BIOS.cmd
-// For nonBIOS applications add:   F2802xX_Headers_nonBIOS.cmd
+// For BIOS applications add:      DSP2802x_Headers_BIOS.cmd
+// For nonBIOS applications add:   DSP2802x_Headers_nonBIOS.cmd
 ========================================================= */
 
 /* ======================================================
@@ -37,12 +37,12 @@
 // locations within the memory map                                    */
 
 /* Uncomment this line to include file only for non-BIOS applications */
-/* -l F2802xX_Headers_nonBIOS.cmd */
+/* -l DSP2802x_Headers_nonBIOS.cmd */
 
 /* Uncomment this line to include file only for BIOS applications */
-/* -l F2802xX_Headers_BIOS.cmd */
+/* -l DSP2802x_Headers_BIOS.cmd */
 
-/* 2) In your project add the path to <base>\f2802xX_headers\cmd to the
+/* 2) In your project add the path to <base>\DSP2802x_headers\cmd to the
    library search path under project->build options, linker tab,
    library search path (-i).
 /*========================================================= */
@@ -84,7 +84,7 @@ PAGE 0:    /* Program Memory */
 
    IQTABLES    : origin = 0x3FE000, length = 0x000B50     /* IQ Math Tables in Boot ROM */
    IQTABLES2   : origin = 0x3FEB50, length = 0x00008C     /* IQ Math Tables in Boot ROM */
-   IQTABLES3   : origin = 0x3FEBDC, length = 0x0000AA      /* IQ Math Tables in Boot ROM */
+   IQTABLES3   : origin = 0x3FEBDC, length = 0x0000AA	  /* IQ Math Tables in Boot ROM */
 
    ROM         : origin = 0x3FF27C, length = 0x000D44     /* Boot ROM */
    RESET       : origin = 0x3FFFC0, length = 0x000002     /* part of boot ROM  */
@@ -112,16 +112,27 @@ SECTIONS
 {
 
    /* Allocate program areas: */
-   .cinit              : > FLASHA | FLASHC | FLASHD,       PAGE = 0
-   .pinit              : > FLASHA | FLASHC | FLASHD,      PAGE = 0
-   .text               : >> FLASHA | FLASHC | FLASHD,       PAGE = 0
+   .cinit              : > FLASHA       PAGE = 0
+   .pinit              : > FLASHA,      PAGE = 0
+   .text               : > FLASHA       PAGE = 0
    codestart           : > BEGIN        PAGE = 0
    ramfuncs            : LOAD = FLASHA,
                          RUN = PRAML0,
                          LOAD_START(RamfuncsLoadStart),
-                         LOAD_SIZE(RamfuncsLoadSize),
+                         LOAD_SIZE(RamfuncsLoadSize), // LOAD_END(_RamfuncsLoadEnd),     LOAD_SIZE(RamfuncsLoadSize)
                          RUN_START(RamfuncsRunStart),
                          PAGE = 0
+
+#ifdef __TI_COMPILER_VERSION
+   #if __TI_COMPILER_VERSION >= 15009000
+    .TI.ramfunc : {} LOAD = FLASHA,
+                         RUN = PRAML0,
+                         LOAD_START(RamfuncsLoadStart),
+                         LOAD_END(RamfuncsLoadEnd),
+                         RUN_START(RamfuncsRunStart),
+                         PAGE = 0
+   #endif
+#endif                           
 
    csmpasswds          : > CSM_PWL_P0   PAGE = 0
    csm_rsvd            : > CSM_RSVD     PAGE = 0
@@ -130,8 +141,6 @@ SECTIONS
    .stack              : > RAMM0        PAGE = 1
    .ebss               : > DRAML0       PAGE = 1
    .esysmem            : > DRAML0       PAGE = 1
-   .sysmem             : > DRAML0       PAGE = 1
-   .cio                : >> RAMM0 | RAMM1 | DRAML0       PAGE = 1
 
    /* Initalized sections go in Flash */
    /* For SDFlash to program these, they must be allocated to page 0 */

@@ -11,6 +11,7 @@
 #include "DSP2802x_Device.h"                // 已包含所有的外设模块头文件
 #include "User_Functions.h"
 #include "User_Variables.h"
+#include "string.h"
 
 
 

@@ -31,6 +31,7 @@ extern void InitECap1Gpio(void);
 extern void InitEPwm(void);
 extern void InitEPwm1(void);
 extern void InitEPwm2(void);
+extern void InitEPwm3(void);
 extern void InitEPwmGpio(void);
 extern void InitEPwm1Gpio(void);
 extern void InitEPwm2Gpio(void);
@@ -66,6 +67,7 @@ extern void DisableDog(void);
 extern Uint16 CsmUnlock(void);
 extern void IntOsc1Sel (void);
 extern void IntOsc2Sel (void);
+extern void XtalOscSel (void);
 extern void ExtClkSel (void);
 extern int16 GetTemperatureC(int16 sensorSample); // returns temp in deg. C
 extern int16 GetTemperatureK(int16 sensorSample); // returns temp in deg. K
@@ -90,6 +92,8 @@ void MemCopy(Uint16 *SourceAddr, Uint16* SourceEndAddr, Uint16* DestAddr);
 extern Uint16 RamfuncsLoadStart;
 extern Uint16 RamfuncsLoadEnd;
 extern Uint16 RamfuncsRunStart;
+extern Uint16 RamfuncsLoadSize;
+
 
 #ifdef __cplusplus
 }

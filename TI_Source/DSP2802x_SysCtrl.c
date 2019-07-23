@@ -57,11 +57,14 @@ void InitSysCtrl(void)
 
    // Select Internal Oscillator 1 as Clock Source (default), and turn off all unused clocks to
    // conserve power.
+
    IntOsc1Sel();
+   //XtalOscSel ();
 
    // Initialize the PLL control: PLLCR and DIVSEL
    // DSP28_PLLCR and DSP28_DIVSEL are defined in DSP2802x_Examples.h
-   InitPll(DSP28_PLLCR,DSP28_DIVSEL);
+
+  InitPll(DSP28_PLLCR,DSP28_DIVSEL);
 
    // Initialize the peripheral clocks
    InitPeripheralClocks();
@@ -75,7 +78,7 @@ void InitSysCtrl(void)
 //                   CAUTION
 // This function MUST be executed out of RAM. Executing it
 // out of OTP/Flash will yield unpredictable results
-
+#pragma CODE_SECTION(InitFlash, "ramfuncs");   //#pragma是预处理指令，它的作用是设定编译器的状态或者是指示编译器完成一些特定的动作。
 void InitFlash(void)
 {
    EALLOW;
@@ -183,7 +186,7 @@ void InitPll(Uint16 val, Uint16 divsel)
    {
 
       EALLOW;
-      // Before setting PLLCR turn off missing clock detect logic
+      // Before setting PLLCR, turn off missing clock detect logic
       SysCtrlRegs.PLLSTS.bit.MCLKOFF = 1;
       SysCtrlRegs.PLLCR.bit.DIV = val;
       EDIS;
@@ -215,7 +218,7 @@ void InitPll(Uint16 val, Uint16 divsel)
       }
 
       EALLOW;
-      SysCtrlRegs.PLLSTS.bit.MCLKOFF = 0;
+      SysCtrlRegs.PLLSTS.bit.MCLKOFF = 0;  //重新开检测时钟丢失
       EDIS;
     }
 
@@ -259,7 +262,7 @@ void InitPeripheralClocks(void)
 // LOSPCP prescale register settings, normally it will be set to default values
 
    GpioCtrlRegs.GPAMUX2.bit.GPIO18 = 3;  // GPIO18 = XCLKOUT
-   SysCtrlRegs.LOSPCP.all = 0x0002;
+   SysCtrlRegs.LOSPCP.all = 0x0002;  //低速时钟频率这里设为SYSCLKOUT的四分之一，默认。低速时钟只分配给SPI-A、SCI-A，其它都直接用SYSCLKOUT
 
 // XCLKOUT to SYSCLKOUT ratio.  By default XCLKOUT = 1/4 SYSCLKOUT
    SysCtrlRegs.XCLK.bit.XCLKOUTDIV=2; // Set XCLKOUT = SYSCLKOUT/1
@@ -348,13 +351,26 @@ Uint16 CsmUnlock()
 // sources to minimize power consumption
 
 void IntOsc1Sel (void) {
-    EALLOW;
-    SysCtrlRegs.CLKCTL.bit.INTOSC1OFF = 0;
-    SysCtrlRegs.CLKCTL.bit.OSCCLKSRCSEL=0;  // Clk Src = INTOSC1
-    SysCtrlRegs.CLKCTL.bit.XCLKINOFF=1;     // Turn off XCLKIN
-    SysCtrlRegs.CLKCTL.bit.XTALOSCOFF=1;    // Turn off XTALOSC
-    SysCtrlRegs.CLKCTL.bit.INTOSC2OFF=1;    // Turn off INTOSC2
-    EDIS;
+/*    EALLOW;
+    SysCtrlRegs.CLKCTL.bit.XTALOSCOFF=0;    // Turn off XTALOSC  开外部晶振
+    SysCtrlRegs.CLKCTL.bit.XCLKINOFF=1;     // Turn off XCLKIN  0是on，1是off
+    //DELAY_US(1000);
+    SysCtrlRegs.CLKCTL.bit.OSCCLKSRC2SEL = 0;//用外部晶振，不用内部2时钟
+    SysCtrlRegs.CLKCTL.bit.OSCCLKSRCSEL=1;  // Clk Src = INTOSC1  0是用内部晶振，1是用外部晶振或时钟2
+    DELAY_US(1000);
+    InitPll(DSP28_PLLCR,DSP28_DIVSEL);
+    SysCtrlRegs.CLKCTL.bit.WDCLKSRCSEL = 1;    // 看门狗时钟来自外部晶振时钟源
+    SysCtrlRegs.CLKCTL.bit.INTOSC2OFF = 1;  //1 turn off内部晶振
+    SysCtrlRegs.CLKCTL.bit.INTOSC1OFF=1;    // Turn off INTOSC2
+    EDIS;*/
+
+	EALLOW;
+	SysCtrlRegs.CLKCTL.bit.INTOSC1OFF=0;
+	SysCtrlRegs.CLKCTL.bit.OSCCLKSRCSEL=0;
+	SysCtrlRegs.CLKCTL.bit.XCLKINOFF=1;
+	SysCtrlRegs.CLKCTL.bit.XTALOSCOFF=1;
+	SysCtrlRegs.CLKCTL.bit.INTOSC2OFF = 1;
+	EDIS;
 }
 
 //---------------------------------------------------------------------------
@@ -387,6 +403,7 @@ void IntOsc2Sel (void) {
 void XtalOscSel (void)  {
      EALLOW;
      SysCtrlRegs.CLKCTL.bit.XTALOSCOFF = 0;     // Turn on XTALOSC
+     //DELAY_US(1000);
      SysCtrlRegs.CLKCTL.bit.XCLKINOFF = 1;      // Turn off XCLKIN
      SysCtrlRegs.CLKCTL.bit.OSCCLKSRC2SEL = 0;  // Switch to external clock
      SysCtrlRegs.CLKCTL.bit.OSCCLKSRCSEL = 1;   // Switch from INTOSC1 to INTOSC2/ext clk

@@ -23,8 +23,10 @@ void InitEPwm(void)
    // Initialize EPwm1/2/3/4
 	 InitEPwm1Gpio();
 	 InitEPwm2Gpio();
+	 //InitEPwm3Gpio();
 	 InitEPwm1();
 	 InitEPwm2();
+	 InitEPwm3();
    //tbd...
 
 }
@@ -43,7 +45,7 @@ void InitEPwmGpio(void)
 {
    InitEPwm1Gpio();
    InitEPwm2Gpio();
- //  InitEPwm3Gpio();
+   InitEPwm3Gpio();
 #if DSP28_EPWM4
   // InitEPwm4Gpio();
 #endif // endif DSP28_EPWM4
@@ -173,10 +175,10 @@ void InitEPwm1(void)
 	   //EPwm1Regs.AQCTLA.bit.CAU = AQ_SET;           // Clear PWM1A on event A, up count   原来增减计数模式下，用EPwm1Regs.AQCTLA.bit.CAD = AQ_CLEAR;
 
 	   EPwm1Regs.AQCTLA.bit.ZRO = AQ_SET;
-	   EPwm1Regs.AQCTLA.bit.CAU = AQ_CLEAR;    //减计数模式下
+	   EPwm1Regs.AQCTLA.bit.CAU = AQ_CLEAR;
 
-	  // EPwm1Regs.AQCTLB.bit.CAD = AQ_CLEAR;           // Set PWM1B on event A, down count
-	  // EPwm1Regs.AQCTLB.bit.CAU = AQ_SET;
+	   //EPwm1Regs.AQCTLB.bit.CAD = AQ_CLEAR;           // Set PWM1B on event A, down count
+	   //EPwm1Regs.AQCTLB.bit.CAU = AQ_SET;             //
 
 
 
@@ -185,19 +187,22 @@ void InitEPwm1(void)
 	   EPwm1Regs.ETSEL.bit.SOCBSEL = 0x02; //TB为PRD时触发
 	   EPwm1Regs.ETPS.bit.SOCBPRD = 0x01;
 	   EPwm1Regs.ETSEL.bit.SOCAEN=1;
-	   EPwm1Regs.ETSEL.bit.SOCASEL = 0x01; //TB为ZRO时触发
+	   EPwm1Regs.ETSEL.bit.SOCASEL = 0x04; //TB为CAU时触发
 	   EPwm1Regs.ETPS.bit.SOCAPRD = 0x01;
 
 
 	//Setup TZ
 	//必须在缓启动结束后再开启，否则上电过程可能引起短路保护触发，封锁EPWM输出。
 
-	   EALLOW;
-	   EPwm1Regs.TZSEL.bit.CBC5 =0;                    //禁止用TZ5来触发TZ中断，在主程序中用软件来触发
-	   EPwm1Regs.TZCTL.bit.TZA = TZ_FORCE_LO;          //PWM输出低电平，关IGBT输出
+/*	   EALLOW;
+	   EPwm1Regs.TZSEL.bit.OSHT5 =1;                   //配置TZ5为单次触发，一旦时钟丢失，将触发ePWM1输出引脚一直维持设定的动作，直到手动清除，后面在TZ的中断函数中清除
+	   EPwm1Regs.TZSEL.bit.OSHT6 =1;                   //配置TZ5为单次触发，一旦时钟丢失，将触发ePWM1输出引脚一直维持设定的动作，直到手动清除，后面在TZ的中断函数中清除
+	   EPwm1Regs.TZCTL.bit.TZA = TZ_FORCE_LO;          //TZ事件（指TZ1-TZ6任意一个被设定好的事件）触发时，PWM输出低电平，关IGBT输出
 	   EPwm1Regs.TZCTL.bit.TZB = TZ_FORCE_LO;          //PWM输出低电平，关IGBT输出
-	  // EPwm1Regs.TZEINT.bit.CBC = 0;                   //允许TZ-CBC中断
-	   EDIS;/*jyw*/
+	   EPwm1Regs.TZEINT.bit.OST = 1;                   //使能OST中断
+	   EDIS;jyw*/
+
+	   //Comparator_DC_TZ_Protect_init();               //通过比较器、DC模块、TZ模块设置的保护控制初始化，这个等以后有给COMP分配引脚再用
 
 	   // Interrupt where we will change the Compare Values
 	   EPwm1Regs.ETSEL.bit.INTSEL = ET_CTR_ZERO;       // Select INT on zero event
@@ -211,9 +216,9 @@ void InitEPwm1(void)
 	   EPwm1Regs.HRCNFG.all = 0X0;   //clear all bits first
 	   EPwm1Regs.HRCNFG.bit.EDGMODE = HR_FEP;      //MEP作用在下降沿
 	   EPwm1Regs.HRCNFG.bit.CTLMODE = HR_CMP;
+	   //EPwm1Regs.HRPCTL.bit.HRPE = 0; //这里禁止高精度周期的设置，可能是说防止边沿定位由TBPRDHR控制吧，但这是上电复位默认的，应该也不用写
 	   EPwm1Regs.HRCNFG.bit.HRLOAD  = HR_CTR_ZERO;
 	   EDIS;
-
 }
 
 void InitEPwm2(void)
@@ -251,27 +256,63 @@ void InitEPwm2(void)
 
 
 	   ////PWM触发AD
-	   EPwm2Regs.ETSEL.bit.SOCBEN=1;
-	   EPwm2Regs.ETSEL.bit.SOCBSEL = 0x02; //TB为PRD时触发
-	   EPwm2Regs.ETPS.bit.SOCBPRD = 0x01;
+//	   EPwm2Regs.ETSEL.bit.SOCBEN=1;
+//	   EPwm2Regs.ETSEL.bit.SOCBSEL = 0x02; //TB为PRD时触发
+//	   EPwm2Regs.ETPS.bit.SOCBPRD = 0x01;
 
 
 	//Setup TZ
 	//必须在缓启动结束后再开启，否则上电过程可能引起短路保护触发，封锁EPWM输出。
 
-	   EALLOW;
-	   EPwm2Regs.TZSEL.bit.CBC5 =0;                    //禁止用TZ5来触发TZ中断，在主程序中用软件来触发
-	   EPwm2Regs.TZCTL.bit.TZA = TZ_FORCE_LO;          //PWM输出低电平，关IGBT输出
-	   EPwm2Regs.TZCTL.bit.TZB = TZ_FORCE_LO;          //PWM输出低电平，关IGBT输出
+//	   EALLOW;
+//	   EPwm2Regs.TZSEL.bit.CBC5 =0;                    //禁止用TZ5来触发TZ中断，在主程序中用软件来触发
+//	   EPwm2Regs.TZCTL.bit.TZA = TZ_FORCE_LO;          //PWM输出低电平，关IGBT输出
+//	   EPwm2Regs.TZCTL.bit.TZB = TZ_FORCE_LO;          //PWM输出低电平，关IGBT输出
 	  // EPwm1Regs.TZEINT.bit.CBC = 0;                   //允许TZ-CBC中断
-	   EDIS;/*jyw*/
+//	   EDIS;/*jyw*/
 
 	   // Interrupt where we will change the Compare Values
-	   EPwm2Regs.ETSEL.bit.INTSEL = ET_CTR_ZERO;       // Select INT on zero event
+//	   EPwm2Regs.ETSEL.bit.INTSEL = ET_CTR_ZERO;       // Select INT on zero event
 	 //  EPwm1Regs.ETSEL.bit.INTSEL = ET_CTR_PRD;
-	   EPwm2Regs.ETSEL.bit.INTEN = 1;                  // Enable INT,外设级中断允许
-	   EPwm2Regs.ETPS.bit.INTPRD = ET_1ST;             // Generate INT on 1rd event
+//	   EPwm2Regs.ETSEL.bit.INTEN = 1;                  // Enable INT,外设级中断允许
+//	   EPwm2Regs.ETPS.bit.INTPRD = ET_1ST;             // Generate INT on 1rd event
 }
+
+void InitEPwm3(void)
+{
+	   //ADC采电感电流，用ePWM3触发，频率是开关周期的10倍，这样一个开关周期可以采10个电感电流数据作平均
+	   int SW_TBPRD_3 = (int)(6000/SWITCH_FREQUENCY); //增计数模式下
+
+	   EPwm3Regs.TBPRD =  SW_TBPRD_3 - 1;
+	   EPwm3Regs.TBPHS.half.TBPHS = 0x0000;
+	   EPwm3Regs.TBCTR = 0x0000;
+
+	   // Set Compare values
+	   EPwm3Regs.CMPA.half.CMPA = 10;                 //0.5左右占空比，这个不准的话问题不大
+	   // Setup counter mode
+	   EPwm3Regs.TBCTL.bit.CTRMODE = TB_COUNT_UP;     //
+	   EPwm3Regs.TBCTL.bit.PHSEN = TB_DISABLE;        //
+	   EPwm3Regs.TBCTL.bit.HSPCLKDIV = TB_DIV1;       //
+	   EPwm3Regs.TBCTL.bit.CLKDIV = TB_DIV1;
+
+	   // Setup shadowing (CC)
+	   EPwm3Regs.CMPCTL.bit.SHDWAMODE =CC_SHADOW;
+	   EPwm3Regs.CMPCTL.bit.SHDWBMODE =CC_SHADOW;
+	   EPwm3Regs.CMPCTL.bit.LOADAMODE = CC_CTR_ZERO;  // Load on Zero
+	   EPwm3Regs.CMPCTL.bit.LOADBMODE = CC_CTR_ZERO;
+
+	   EPwm3Regs.AQCTLA.bit.ZRO = AQ_SET;
+	   EPwm3Regs.AQCTLA.bit.CAU = AQ_CLEAR;
+
+	   ////PWM触发AD
+	   //EPwm3Regs.ETSEL.bit.SOCBEN=1;
+	   //EPwm3Regs.ETSEL.bit.SOCBSEL = 0x02; //TB为PRD时触发
+	   //EPwm3Regs.ETPS.bit.SOCBPRD = 0x01;
+	   EPwm3Regs.ETSEL.bit.SOCAEN=1;
+	   EPwm3Regs.ETSEL.bit.SOCASEL = 0x04; //TB为CAU时触发
+	   EPwm3Regs.ETPS.bit.SOCAPRD = 0x01;
+}
+
 
 //---------------------------------------------------------------------------
 // Example: InitEPwmSyncGpio:

@@ -51,6 +51,7 @@ void User_PID()
    DutyCycle_Correct = PIout;   //增减计数+CAU_SET+CAD_CLEAR的方案则是 DutyCycle_Correct = _IQ15(100) - PIout;
    DutyCycle_Int = _IQ15int(DutyCycle_Correct);
    DutyCycle_Fra = _IQ15int(_IQ15mpy(_IQfrac(DutyCycle_Correct),_IQ(256)) );
+   //DutyCycle_Fra = _IQfrac(DutyCycle_Correct) >> 7; //这一句和上面一句是一样的意思。_IQfrac取得的值仍是IQ数（即实际小数左移了15位）
 
    if(DutyCycle_Int >= 190) EPwm1Regs.CMPA.half.CMPA = 190;   //HRPWM要求增减计数模式下要预留3个时钟周期的时钟裕度。这里设置占空比限制为0.05和0.95；而减计数模式下0.95占空比对应190,0.05占空比对应10
    else if(DutyCycle_Int <= 10) EPwm1Regs.CMPA.half.CMPA = 10;
@@ -58,5 +59,3 @@ void User_PID()
    EPwm1Regs.CMPA.half.CMPAHR = DutyCycle_Fra << 8;
 
 }
-
-
