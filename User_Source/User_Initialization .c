@@ -35,6 +35,11 @@ void Initial_User_variables()
 	Vo = 0;
 	IL = 0;
 	Vi = 0;
+
+    send_voltage_input = 0x01;
+    send_current_input = 0x02;
+    send_voltage_output = 0x03;
+    send_current_output = 0x04;
 	/********************************/
 
 	ADC_INT1_Count = 0;

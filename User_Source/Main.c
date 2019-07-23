@@ -14,7 +14,7 @@ interrupt void epwm1_isr(void);
 //interrupt void TZ_protect_isr(void);
 interrupt void Adcint1_isr(void);
 interrupt void Adcint2_isr(void);
-
+__interrupt void cpu_timer0_isr(void);
 //_iq dc_dc2_duty;
 	_iq dc_dc2_duty_init;
 	//_iq dc_dc2_duty_correct_init;
@@ -62,6 +62,8 @@ void main(void)
 	//PieVectTable.EPWM1_TZINT 	=	&TZ_protect_isr;                 //PWM的TZ中断（保护应答）
 	PieVectTable.ADCINT1 	=	&Adcint1_isr;                        //CPU在ADC中断中读取采样数据
 	PieVectTable.ADCINT2 	=	&Adcint2_isr;
+    PieVectTable.SCIRXINTA  =   &sciaRxFifoIsr;
+    PieVectTable.TINT0 = &cpu_timer0_isr;
 	EDIS;    //重新保护
 	EALLOW;
 	SysCtrlRegs.PCLKCR0.bit.TBCLKSYNC = 0;                        //关闭启动启用的EPWM模块时钟
@@ -88,6 +90,8 @@ void main(void)
 	InitEPwm(); //PWM模块基本设置
 	Adc_basic_init();   //ADC模块基本设置
 	scia_basic_init();  //串口基本设置：包括SCI对应的GPIO以及其他基本设置
+    InitCpuTimers();
+    ConfigCpuTimer(&CpuTimer0, 60, 1000000);
 	/***********************************************/
 
 
@@ -118,15 +122,18 @@ void main(void)
     IER |= M_INT3; //这里的IER应该就是Interrupt Enable Register，是配置14组PIE连到CPU之间的使能；每一组对应该寄存器上的一位，前面已经把IER初始化为0，这里用或的形式使能第3组PIE。（ePWM1的中断由第三组PIE管理）
     //IER |= M_INT2; //使能第二组PIE（EPWM1_TZINT和ADCINT2由第二组中断管理）
     IER |= M_INT1; //使能第一组PIE（ADCINT1和ADCINT2由第一组中断管理）
+    IER |= M_INT9; //SCIA FIFORX interrupt
+    IER |= M_INT1; //timer0 interrupt
 	EALLOW;
 	SysCtrlRegs.PCLKCR0.bit.TBCLKSYNC = 1;     //启动启用的EPWM模块时钟  。如果该时钟不使能，点debug后还自动运行（还没等用户点运行键就运行了），还不能在线读写数据
 	EDIS;
 
-	PieCtrlRegs.PIEIER3.bit.INTx1 = 1;          //这里是配置从PIE组到外设之间的中断使能，ePWM1中断是对应第3组PIE的第一个
+	PieCtrlRegs.PIEIER3.bit.INTx1 = 0;          //这里是配置从PIE组到外设之间的中断使能，ePWM1中断是对应第3组PIE的第一个
 	//PieCtrlRegs.PIEIER2.bit.INTx1 = 0;          //EPWM1_TZINT中断是对应第2组PIE的第一个
-	PieCtrlRegs.PIEIER1.bit.INTx1 = 1;          //ADCINT1中断是对应第1组PIE的第一个
-	PieCtrlRegs.PIEIER1.bit.INTx2 = 1;          //ADCINT2中断是对应第1组PIE的第二个
-
+	PieCtrlRegs.PIEIER1.bit.INTx1 = 0;          //ADCINT1中断是对应第1组PIE的第一个
+	PieCtrlRegs.PIEIER1.bit.INTx2 = 0;          //ADCINT2中断是对应第1组PIE的第二个
+    PieCtrlRegs.PIEIER9.bit.INTx1 = 1;          //PIE RXFIFO
+    PieCtrlRegs.PIEIER1.bit.INTx7 = 1; //PIE timer0 interrupt
 	/***********************************************/
 	/*************用户程序初始化执行开始*************/
 
@@ -137,6 +144,7 @@ void main(void)
     ERTM;   // Enable Global realtime interrupt DBGM  //使能调试事件，对应把DGBM清0。如果禁止调事件，或DGBM置位，将会导致仿真器无法在实时状态下访问内存、寄存器；
             //而且来自主处理器和硬件断点的停止请求被忽略（意思是无法单步调试？）
 
+    StartCpuTimer0();
 /*************************************************/
 	for(;;)
 	{
@@ -162,20 +170,18 @@ void main(void)
 			   GpioDataRegs.GPACLEAR.bit.GPIO5 = 1;			//Boost 开关管驱动关
 		   }*/
 
-
-		/************串口工作************/
-		receive_parameter();
-		if (Parameter == 0x6B70 || Parameter == 0x6B69) PC_modify_kp_or_ki();//字符串kp对应的Hex数据为0x6B70，字符串ki对应的Hex数据为0x6B69
-		else if (Parameter == 0x766F || Parameter == 0x696C || Parameter == 0x7669) PC_update_vo_or_il_or_vi();
-		else {}
-        Parameter = 0;
-        /*******************************/
-
 	}
 }
 
 
-
+__interrupt void cpu_timer0_isr(void) //可以做一些对时间要求不严格的任务
+{
+    CpuTimer0.InterruptCount++;
+    send_data_to_pc(2000, send_voltage_output);
+    send_data_to_pc(3000, send_current_output);
+    CpuTimer0Regs.TCR.bit.TIF = 1;
+    PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
+}
 
 #pragma CODE_SECTION(epwm1_isr, "ramfuncs");
 interrupt void epwm1_isr(void)

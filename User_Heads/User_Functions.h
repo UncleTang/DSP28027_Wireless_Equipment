@@ -40,7 +40,8 @@ TARGET_EXT void PC_modify_kp_or_ki(void);  //dsp通过SCI接收电脑发送的修改参数
 TARGET_EXT void PC_update_vo_or_il_or_vi(void);  //把dsp采集的输出电压电流参数通过SCI发送给电脑
 TARGET_EXT int pow(int a, int b);   //乘方函数
 TARGET_EXT void scia_send_Char_one_by_one(char * Str);  //用于发送提示语句
-
+TARGET_EXT __interrupt void sciaRxFifoIsr();
+TARGET_EXT void send_data_to_pc(Uint16 num, char num_type);
 /*************************************/
 
 /*************ADC相关函数**********/
