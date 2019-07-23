@@ -2,6 +2,8 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
+SHELL = cmd.exe
+
 # Add inputs and outputs from these tool invocations to the build variables 
 ASM_SRCS += \
 ../TI_Source/DSP2802x_CSMPasswords.asm \
@@ -28,6 +30,25 @@ C_SRCS += \
 ../TI_Source/DSP2802x_Spi.c \
 ../TI_Source/DSP2802x_SysCtrl.c \
 ../TI_Source/DSP2802x_TempSensorConv.c 
+
+C_DEPS += \
+./TI_Source/DSP2802x_Adc.d \
+./TI_Source/DSP2802x_Comp.d \
+./TI_Source/DSP2802x_CpuTimers.d \
+./TI_Source/DSP2802x_DefaultIsr.d \
+./TI_Source/DSP2802x_ECap.d \
+./TI_Source/DSP2802x_EPwm.d \
+./TI_Source/DSP2802x_GlobalVariableDefs.d \
+./TI_Source/DSP2802x_Gpio.d \
+./TI_Source/DSP2802x_I2C.d \
+./TI_Source/DSP2802x_MemCopy.d \
+./TI_Source/DSP2802x_OscComp.d \
+./TI_Source/DSP2802x_PieCtrl.d \
+./TI_Source/DSP2802x_PieVect.d \
+./TI_Source/DSP2802x_Sci.d \
+./TI_Source/DSP2802x_Spi.d \
+./TI_Source/DSP2802x_SysCtrl.d \
+./TI_Source/DSP2802x_TempSensorConv.d 
 
 OBJS += \
 ./TI_Source/DSP2802x_Adc.obj \
@@ -60,44 +81,6 @@ ASM_DEPS += \
 ./TI_Source/DSP2802x_DisInt.d \
 ./TI_Source/DSP2802x_usDelay.d 
 
-C_DEPS += \
-./TI_Source/DSP2802x_Adc.d \
-./TI_Source/DSP2802x_Comp.d \
-./TI_Source/DSP2802x_CpuTimers.d \
-./TI_Source/DSP2802x_DefaultIsr.d \
-./TI_Source/DSP2802x_ECap.d \
-./TI_Source/DSP2802x_EPwm.d \
-./TI_Source/DSP2802x_GlobalVariableDefs.d \
-./TI_Source/DSP2802x_Gpio.d \
-./TI_Source/DSP2802x_I2C.d \
-./TI_Source/DSP2802x_MemCopy.d \
-./TI_Source/DSP2802x_OscComp.d \
-./TI_Source/DSP2802x_PieCtrl.d \
-./TI_Source/DSP2802x_PieVect.d \
-./TI_Source/DSP2802x_Sci.d \
-./TI_Source/DSP2802x_Spi.d \
-./TI_Source/DSP2802x_SysCtrl.d \
-./TI_Source/DSP2802x_TempSensorConv.d 
-
-C_DEPS__QUOTED += \
-"TI_Source\DSP2802x_Adc.d" \
-"TI_Source\DSP2802x_Comp.d" \
-"TI_Source\DSP2802x_CpuTimers.d" \
-"TI_Source\DSP2802x_DefaultIsr.d" \
-"TI_Source\DSP2802x_ECap.d" \
-"TI_Source\DSP2802x_EPwm.d" \
-"TI_Source\DSP2802x_GlobalVariableDefs.d" \
-"TI_Source\DSP2802x_Gpio.d" \
-"TI_Source\DSP2802x_I2C.d" \
-"TI_Source\DSP2802x_MemCopy.d" \
-"TI_Source\DSP2802x_OscComp.d" \
-"TI_Source\DSP2802x_PieCtrl.d" \
-"TI_Source\DSP2802x_PieVect.d" \
-"TI_Source\DSP2802x_Sci.d" \
-"TI_Source\DSP2802x_Spi.d" \
-"TI_Source\DSP2802x_SysCtrl.d" \
-"TI_Source\DSP2802x_TempSensorConv.d" 
-
 OBJS__QUOTED += \
 "TI_Source\DSP2802x_Adc.obj" \
 "TI_Source\DSP2802x_CSMPasswords.obj" \
@@ -121,6 +104,25 @@ OBJS__QUOTED += \
 "TI_Source\DSP2802x_SysCtrl.obj" \
 "TI_Source\DSP2802x_TempSensorConv.obj" \
 "TI_Source\DSP2802x_usDelay.obj" 
+
+C_DEPS__QUOTED += \
+"TI_Source\DSP2802x_Adc.d" \
+"TI_Source\DSP2802x_Comp.d" \
+"TI_Source\DSP2802x_CpuTimers.d" \
+"TI_Source\DSP2802x_DefaultIsr.d" \
+"TI_Source\DSP2802x_ECap.d" \
+"TI_Source\DSP2802x_EPwm.d" \
+"TI_Source\DSP2802x_GlobalVariableDefs.d" \
+"TI_Source\DSP2802x_Gpio.d" \
+"TI_Source\DSP2802x_I2C.d" \
+"TI_Source\DSP2802x_MemCopy.d" \
+"TI_Source\DSP2802x_OscComp.d" \
+"TI_Source\DSP2802x_PieCtrl.d" \
+"TI_Source\DSP2802x_PieVect.d" \
+"TI_Source\DSP2802x_Sci.d" \
+"TI_Source\DSP2802x_Spi.d" \
+"TI_Source\DSP2802x_SysCtrl.d" \
+"TI_Source\DSP2802x_TempSensorConv.d" 
 
 ASM_DEPS__QUOTED += \
 "TI_Source\DSP2802x_CSMPasswords.d" \
