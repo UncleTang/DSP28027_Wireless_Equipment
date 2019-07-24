@@ -30,8 +30,10 @@ void Initial_User_variables()
 
 	/**********串口参数初始化********/
 	Parameter = 0;
-	kp_sci = 0;
-	ki_sci = 0;
+	kp1_sci = 0;
+	ki1_sci = 0;
+    kp2_sci = 0;
+    ki2_sci = 0;
 	Vo = 0;
 	IL = 0;
 	Vi = 0;

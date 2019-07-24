@@ -72,8 +72,8 @@ void PC_modify_kp_or_ki()
      else if (dot == 1) PC_Input_Value_IQ = _IQ15(ReceivedChar[0]-48) + _IQ15(0.1)*(ReceivedChar[2]-48) + _IQ15(0.01)*(ReceivedChar[3]-48);
      else if (dot == 2) PC_Input_Value_IQ = _IQ15((ReceivedChar[0]-48)*10+(ReceivedChar[1]-48)) + _IQ15(0.1)*(ReceivedChar[3]-48);
 
-     if (Parameter == 0x6B70) {kp_sci=PC_Input_Value; Kp = PC_Input_Value_IQ;}  //根据判断修改的参数是kp还是ki，把value赋给相应参数。
-	 else if (Parameter == 0x6B69) {ki_sci=PC_Input_Value; Ki = PC_Input_Value_IQ;}
+     if (Parameter == 0x6B70) {kp1_sci=PC_Input_Value; Kp = PC_Input_Value_IQ;}  //根据判断修改的参数是kp还是ki，把value赋给相应参数。
+	 else if (Parameter == 0x6B69) {ki1_sci=PC_Input_Value; Ki = PC_Input_Value_IQ;}
 }
 /*************************************************************************************************************************************************/
 
@@ -270,34 +270,39 @@ __interrupt void sciaRxFifoIsr()
     {
         switch(receive_buffer[4])
         {
-        case 0x01:
-            temp = ((receive_buffer[5] << 16) + (receive_buffer[6] << 8) + receive_buffer[7]) / 100.0;
-            break;
-        case 0x00:
-            temp = -((receive_buffer[5] << 16) + (receive_buffer[6] << 8) + receive_buffer[7]) / 100.0;
-            break;
+            case 0x01:
+                temp = ((receive_buffer[5] << 16) + (receive_buffer[6] << 8) + receive_buffer[7]) / 100.0;
+                break;
+            case 0x00:
+                temp = -((receive_buffer[5] << 16) + (receive_buffer[6] << 8) + receive_buffer[7]) / 100.0;
+                break;
         }
         switch(receive_buffer[8])
         {
-        case 0x00:
-        {
-            if(kp_sci != temp)
-                kp_sci = temp;
+            case 0x00:
+                if(kp1_sci != temp)
+                    kp1_sci = temp;
+                break;
+            case 0x01:
+                if(ki1_sci != temp)
+                    ki1_sci = temp;
+                break;
+            case 0x02:
+                if(kp2_sci != temp)
+                    kp2_sci = temp;
+                break;
+            case 0x03:
+                if(ki2_sci != temp)
+                    ki2_sci = temp;
+                break;
         }
-        case 0x01:
-        {
-            if(ki_sci != temp)
-                ki_sci = temp;
-        }
-//        case 0x02:
-//            kp_sci = (float)(temp / 1000.0);
-//        case 0x03:
-//            kp_sci = (float)(temp / 1000.0);
-          i = 3;
-        }
+        i = 3;
     }
-    //SciaRegs.SCIFFRX.bit.RXFIFORESET = 0;   //指针复位
-    //SciaRegs.SCIFFRX.bit.RXFIFORESET = 1;
+    SciaRegs.SCIFFRX.bit.RXFFIL = 1;
+    SciaRegs.SCIFFRX.bit.RXFFOVRCLR = 1;
+
+    SciaRegs.SCIFFRX.bit.RXFIFORESET = 0;   //指针复位
+    SciaRegs.SCIFFRX.bit.RXFIFORESET = 1;
     SciaRegs.SCIFFRX.bit.RXFFINTCLR = 1;  // Clear SCI interrupt flag
     PieCtrlRegs.PIEACK.bit.ACK9 = 1;     //PIE应答清零
 }

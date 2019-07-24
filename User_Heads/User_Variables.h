@@ -138,8 +138,10 @@ TARGET_EXT _iq SoftStart_Period;
 //TARGET_EXT Uint16 ParameterL; //Parameter的低8位
 TARGET_EXT Uint16 Parameter;  //用以判断电脑写入参数为kp还是ki
 //TARGET_EXT Uint16 PC_Input_Value;  //用以记录由电脑发送过来的kp或ki值
-TARGET_EXT float kp_sci;  //读取电脑发过来的kp值
-TARGET_EXT float ki_sci;  //读取电脑发过来的ki值
+TARGET_EXT float kp1_sci;  //读取电脑发过来的kp值
+TARGET_EXT float ki1_sci;  //读取电脑发过来的ki值
+TARGET_EXT float kp2_sci;  //读取电脑发过来的kp值
+TARGET_EXT float ki2_sci;  //读取电脑发过来的ki值
 TARGET_EXT Uint16 Vo;  //当前输出电压值
 TARGET_EXT Uint16 IL;  //当前电感电流值
 TARGET_EXT Uint16 Vi;  //当前输入电压值
