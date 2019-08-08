@@ -42,6 +42,10 @@ void Initial_User_variables()
     send_current_input = 0x02;
     send_voltage_output = 0x03;
     send_current_output = 0x04;
+    send_User1 = 0x05;
+    send_User2 = 0x06;
+    send_User3 = 0x07;
+    send_User4 = 0x08;
 	/********************************/
 
 	ADC_INT1_Count = 0;

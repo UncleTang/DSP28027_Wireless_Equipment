@@ -177,8 +177,14 @@ void main(void)
 __interrupt void cpu_timer0_isr(void) //可以做一些对时间要求不严格的任务
 {
     CpuTimer0.InterruptCount++;
-    send_data_to_pc(2000, send_voltage_output);
+    send_data_to_pc(10000, send_voltage_input);
+    send_data_to_pc(3000, send_current_input);
+    send_data_to_pc(10000, send_voltage_output);
     send_data_to_pc(3000, send_current_output);
+    send_data_to_pc(100, send_User1);
+    send_data_to_pc(200, send_User2);
+    send_data_to_pc(300, send_User3);
+    send_data_to_pc(400, send_User4);
     CpuTimer0Regs.TCR.bit.TIF = 1;
     PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
 }

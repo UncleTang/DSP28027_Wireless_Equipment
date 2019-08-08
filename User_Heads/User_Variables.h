@@ -142,6 +142,10 @@ TARGET_EXT float kp1_sci;  //读取电脑发过来的kp值
 TARGET_EXT float ki1_sci;  //读取电脑发过来的ki值
 TARGET_EXT float kp2_sci;  //读取电脑发过来的kp值
 TARGET_EXT float ki2_sci;  //读取电脑发过来的ki值
+TARGET_EXT float Vol_ref;  //读取电脑发过来的kp值
+TARGET_EXT float Cur_ref;  //读取电脑发过来的ki值
+TARGET_EXT float User1;  //读取电脑发过来的kp值
+TARGET_EXT float User2;  //读取电脑发过来的ki值
 TARGET_EXT Uint16 Vo;  //当前输出电压值
 TARGET_EXT Uint16 IL;  //当前电感电流值
 TARGET_EXT Uint16 Vi;  //当前输入电压值
@@ -154,6 +158,10 @@ TARGET_EXT char send_voltage_input;
 TARGET_EXT char send_current_input;
 TARGET_EXT char send_voltage_output;
 TARGET_EXT char send_current_output;
+TARGET_EXT char send_User1;
+TARGET_EXT char send_User2;
+TARGET_EXT char send_User3;
+TARGET_EXT char send_User4;
 /*************************************/
 
 /*************保护作用变量及宏定义**********/

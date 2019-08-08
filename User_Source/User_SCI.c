@@ -271,29 +271,45 @@ __interrupt void sciaRxFifoIsr()
         switch(receive_buffer[4])
         {
             case 0x01:
-                temp = ((receive_buffer[5] << 16) + (receive_buffer[6] << 8) + receive_buffer[7]) / 100.0;
+                temp = ((receive_buffer[5] << 16) + (receive_buffer[6] << 8) + receive_buffer[7]) / 1.0;
                 break;
             case 0x00:
-                temp = -((receive_buffer[5] << 16) + (receive_buffer[6] << 8) + receive_buffer[7]) / 100.0;
+                temp = -((receive_buffer[5] << 16) + (receive_buffer[6] << 8) + receive_buffer[7]) / 1.0;
                 break;
         }
         switch(receive_buffer[8])
         {
             case 0x00:
                 if(kp1_sci != temp)
-                    kp1_sci = temp;
+                    kp1_sci = temp / 1000.0;
                 break;
             case 0x01:
                 if(ki1_sci != temp)
-                    ki1_sci = temp;
+                    ki1_sci = temp / 1000.0;
                 break;
             case 0x02:
                 if(kp2_sci != temp)
-                    kp2_sci = temp;
+                    kp2_sci = temp / 1000.0;
                 break;
             case 0x03:
                 if(ki2_sci != temp)
-                    ki2_sci = temp;
+                    ki2_sci = temp / 1000.0;
+                break;
+            case 0x04:
+                if(Vol_ref != temp)
+                    Vol_ref = temp / 100.0;
+                break;
+            case 0x05:
+                if(Cur_ref != temp)
+                    Cur_ref = temp / 100.0;
+                break;
+            case 0x06:
+                if(User1 != temp)
+                    User1 = temp / 100.0;
+                break;
+            case 0x07:
+                if(User2 != temp)
+                    User2 = temp / 100.0;
                 break;
         }
         i = 3;
@@ -333,6 +349,18 @@ void send_data_to_pc(Uint16 num, char num_type) //接收整数，在PC再处理
         break;
     case 0x04:
         SEND_BUF[4] = 0x04;
+        break;
+    case 0x05:
+        SEND_BUF[4] = 0x05;
+        break;
+    case 0x06:
+        SEND_BUF[4] = 0x06;
+        break;
+    case 0x07:
+        SEND_BUF[4] = 0x07;
+        break;
+    case 0x08:
+        SEND_BUF[4] = 0x08;
         break;
     }
     SEND_BUF[5] = (char)(num >> 16);
